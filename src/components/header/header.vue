@@ -29,7 +29,26 @@
         <div class="background">
             <img :src="seller.avatar" width="100%" height="100%">
         </div>
-        <div v-show="detailShow" class="detail"></div>
+        <div v-show="detailShow" class="detail">
+          <div class="title-info">
+            <div class="store-name">{{ seller.name }}</div>
+            <div class="score">
+              <span class="start"></span>
+              <span class="start"></span>
+              <span class="start"></span>
+              <span class="start"></span>
+              <span class="start"></span>
+            </div>
+          </div>
+          <div class="discount-info">
+            <div class="discount-title title-line">优惠信息</div>
+            <span class="bulletin-title"></span><span class="bulletin-text"></span>
+          </div>
+          <div class="bulletin-info">
+            <div class="bulletin-title"></div>
+            <div class="bulletin-text"></div>
+          </div>
+        </div>
     </div>
 </template>
 
@@ -195,6 +214,62 @@ export default {
     height: 100%;
     overflow: auto;
     background-color: rgba(7, 17, 27, 0.8);
+    color: #fff;
+    text-align: center;
+    .title-info {
+      .store-name {
+        margin-top: 64px;
+        line-height: 16px;
+        font-size: 16px;
+        font-weight: 700;
+      }
+      .score {
+        margin: 16px 0 28px 0;
+        .start {
+          display: inline-block;
+          height: 24px;
+          width: 22px;
+          margin-right: 10px;
+          @include bgImg("./images/star48_on");
+        }
+      }
+    }
+    .discount-info {
+      .discount-title {
+        line-height: 14px;
+        font-size: 14px;
+        font-weight: 700;
+      }
+      .bulletin-title {
+      }
+    }
+    .bulletin-info {
+      .bulletin-title {
+        line-height: 14px;
+        font-size: 14px;
+        font-weight: 700;
+      }
+      .bulletin-text {
+      }
+    }
+    .title-line {
+      position: relative;
+      &::after,
+      &::before {
+        position: absolute;
+        top: 5px;
+        height: 1px;
+        width: 112px;
+        content: "";
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+      &::after {
+        left: 36px;
+      }
+      &::before {
+        right: 36px;
+      }
+    }
   }
 }
 </style>
