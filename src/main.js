@@ -1,13 +1,13 @@
 import Vue from 'vue'
+import axios from 'axios'
+
+import './common/scss/index.scss'
+
 import App from './App.vue'
 import router from './router'
 import store from './store'
-import axios from 'axios'
+
 Vue.prototype.$http = axios
-
-// CSS
-import './common/scss/index.scss'
-
 Vue.config.productionTip = false
 
 new Vue({

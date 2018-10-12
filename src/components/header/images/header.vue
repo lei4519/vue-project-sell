@@ -29,8 +29,7 @@
         <div class="background">
             <img :src="seller.avatar" width="100%" height="100%">
         </div>
-        <transition name="fade">
-          <div v-show="detailShow" class="detail">
+        <div v-show="detailShow" class="detail">
           <div class="detail-wrapper clearfix">
             <div class="detail-main">
               <h1 class="name">{{ seller.name }}</h1>
@@ -48,21 +47,12 @@
                   <span class="text">{{item.description}}</span>
                 </li>
               </ul>
-              <div class="title">
-                <div class="line"></div>
-                <div class="text">商家公告</div>
-                <div class="line"></div>
-              </div>
-              <div class="bulletin">
-                <p class="content">{{ seller.bulletin }}</p>
-              </div>
-            </div>
-            </div>
-            <div class="detail-close" @click="hiddenDetail">
-              <i class="icon-close"></i>
             </div>
           </div>
-        </transition>
+          <div class="detail-close">
+            <i class="icon-close"></i>
+          </div>
+        </div>
     </div>
 </template>
 
@@ -81,9 +71,6 @@ export default {
   methods: {
     showDetail() {
       this.detailShow = true;
-    },
-    hiddenDetail() {
-      this.detailShow = false;
     }
   },
   components: {
@@ -94,14 +81,6 @@ export default {
 
 <style lang="scss" scoped>
 @import "../../common/scss/mixin.scss";
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s;
-}
-.fade-enter,
-.fade-leave-to {
-  opacity: 0;
-}
 .header {
   position: relative;
   color: #fff;
@@ -241,7 +220,6 @@ export default {
     width: 100%;
     height: 100%;
     overflow: auto;
-    backdrop-filter: blur(10px);
     background-color: rgba(7, 17, 27, 0.8);
     color: #fff;
     text-align: center;
@@ -277,52 +255,28 @@ export default {
           }
         }
         .supports {
-          width: 80%;
-          margin: 0 auto;
           .support-item {
-            padding: 0 12px;
-            margin-bottom: 12px;
-            font-size: 0;
-            text-align: left;
-            &:last-child {
-              margin-bottom: 0;
-            }
             .icon {
               display: inline-block;
-              width: 16px;
-              height: 16px;
-              vertical-align: top;
-              margin-right: 6px;
+              width: 12px;
+              height: 12px;
               &.decrease {
-                @include bgImg("./images/decrease_2");
+                @include bgImg("./images/decrease_1");
               }
               &.discount {
-                @include bgImg("./images/discount_2");
+                @include bgImg("./images/discount_1");
               }
               &.guarantee {
-                @include bgImg("./images/guarantee_2");
+                @include bgImg("./images/guarantee_1");
               }
               &.invoice {
-                @include bgImg("./images/invoice_2");
+                @include bgImg("./images/invoice_1");
               }
               &.special {
-                @include bgImg("./images/special_2");
+                @include bgImg("./images/special_1");
               }
+              vertical-align: top;
             }
-            .text {
-              line-height: 16px;
-              font-size: 12px;
-            }
-          }
-        }
-        .bulletin {
-          width: 80%;
-          margin: 0 auto;
-          .content {
-            padding: 0 12px;
-            line-height: 24px;
-            font-size: 12px;
-            text-align: left;
           }
         }
       }
