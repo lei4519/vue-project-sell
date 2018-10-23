@@ -67,7 +67,8 @@
 </template>
 
 <script>
-import Star from "../star/star";
+import Star from "@/components/star/star";
+
 export default {
   data: () => ({
     classMap: ["decrease", "discount", "special", "invoice", "guarantee"],

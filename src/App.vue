@@ -3,13 +3,13 @@
       <v-header :seller="sellerList"></v-header>
       <div class="tab border-1px">
           <div class="tab-item">
-              <router-link tag="a" to="/goods">商品</router-link>
+              <router-link to="/goods">商品</router-link>
           </div>
           <div class="tab-item">
-              <router-link tag="a" to="/ratings">评论</router-link>
+              <router-link to="/ratings">评论</router-link>
           </div>
           <div class="tab-item">
-              <router-link tag="a" to="/seller">商家</router-link>
+              <router-link to="/seller">商家</router-link>
           </div>
       </div>
       <router-view></router-view>
@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import Header from './components/header/header.vue'
+import Header from '@/components/header/header'
 
 export default {
   data: () => ({

@@ -1,6 +1,6 @@
 <template>
     <div class="ratings">
-      <div class="ratings-content"></div>
+      <div class="ratings-content">评论</div>
     </div>
 </template>
 
