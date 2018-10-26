@@ -1,30 +1,27 @@
 <template>
-    <div class="goods-wrapper" ref="bScroll">
-			<div class="content">
-				<ul class="goods-list">
-					<li class="goods-list-title">热销榜</li>
-					<li class="goods-list-title active">单人特色套餐</li>
-					<li class="goods-list-title">特色粥品</li>
-					<li class="goods-list-title">精选热菜</li>
-					<li class="goods-list-title">爽口凉菜</li>
-					<li class="goods-list-title">半成品</li>
-					<li class="goods-list-title">饭类</li>
-					<li class="goods-list-title">面类</li>
-				</ul>
-				<ul class="goods-info">
-					<li v-for="(item, i) in goodsList" :key="i">
-						<div class="goods-info-title">{{ item.name }}</div>
-						<div class="goods-info-item" v-for="(itemInfo, i) in item.foods" :key="i">
-							<img :src="itemInfo.image" width="57px" height="57px">
-							<div class="info-box">
-							<h3 class="title">{{ itemInfo.name }}</h3>
-							<p class="describe">{{ itemInfo.description }}</p>
-							<p class="sales"><span class="sales-info">月售{{itemInfo.sellCount}}份</span><span class="evaluate">好评率{{itemInfo.rating}}%</span></p>
-							<p class="price"><span class="favoured-price">¥{{itemInfo.price}}</span><span class="old-price">¥{{itemInfo.oldPrice}}</span></p>
+    <div class="goods-wrapper">
+			<div class="goods-content">
+				<div class="bScroll bScroll-left" ref="goodsListScroll">
+					<ul class="goods-list">
+						<li class="goods-list-title" v-for="(item, i) in goodsList" :key="i">{{ item.name }}</li>
+					</ul>
+				</div>
+				<div class="bScroll bScroll-right" ref="goodsInfoScroll">
+					<ul class="goods-info">
+						<li v-for="(item, i) in goodsList" :key="i">
+							<div class="goods-info-title">{{ item.name }}</div>
+							<div class="goods-info-item" v-for="(itemInfo, i) in item.foods" :key="i">
+								<img :src="itemInfo.image" width="57px" height="57px">
+								<div class="info-box">
+								<h3 class="title">{{ itemInfo.name }}</h3>
+								<p class="describe" v-if="itemInfo.description">{{ itemInfo.description }}</p>
+								<p class="sales"><span class="sales-info">月售{{itemInfo.sellCount}}份</span><span class="evaluate">好评率{{itemInfo.rating}}%</span></p>
+								<p class="price"><span class="favoured-price">¥{{itemInfo.price}}</span><del class="old-price" v-if="itemInfo.oldPrice">¥{{itemInfo.oldPrice}}</del></p>
+								</div>
 							</div>
-						</div>
-					</li>
-				</ul>
+						</li>
+					</ul>
+				</div>
 			</div>
 		</div>
 </template>
@@ -44,18 +41,18 @@ export default {
 			const res = (await this.axios.get('/api/goods')).data
 			if (res.errCode === 0) {
 				this.goodsList = res.data
+				this.$nextTick(() => {
+					new BScroll(this.$refs.goodsListScroll, {})
+					new BScroll(this.$refs.goodsInfoScroll, {})
+				})
 			}	else {
 				alert('商品信息获取失败')
 			}
 		} catch (err) {
 			alert(err.message)
 		}
-		
 	},
 	mounted() {
-		this.$nextTick(() => {
-			new BScroll(this.$refs.bScroll, {})
-		})
 	}
 }
 </script>
@@ -63,13 +60,18 @@ export default {
 <style lang="scss" scoped>
 @import '../../common/scss/mixin.scss';
 .goods-wrapper{
-	position: absolute;
-	top: 176px;
-	bottom: 48px;
-	width: 100%;
-	overflow: hidden;
-	.content{
+	.goods-content{
 		display: flex;
+		.bScroll{
+			position: absolute;
+			top: 176px;
+			bottom: 48px;
+			overflow: hidden;
+			&.bScroll-right{
+				right: 0;
+				margin-left: 80px;
+			}
+		}
 		.goods-list{
 			width: 80px;
 			.goods-list-title{
