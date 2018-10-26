@@ -18,7 +18,10 @@ export default new Router({
     },
     {
       path: '/goods',
-      component: Goods
+			component: Goods,
+			meta: {
+				keepAlive: true
+			}
     },
     {
       path: '/ratings',
