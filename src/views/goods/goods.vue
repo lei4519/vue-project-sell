@@ -1,210 +1,249 @@
 <template>
-    <div class="goods-wrapper">
-        <div class="goods-content">
-            <div class="bScroll bScroll-left" ref="goodsListScroll">
-                <ul class="goods-list">
-                    <li class="goods-list-title" v-for="(item, i) in goodsList"
-                        :key="i" :class="{'active': checkedIndex === i}">
-                        {{ item.name }}
-                    </li>
-                </ul>
-            </div>
-            <div class="bScroll bScroll-right" ref="goodsInfoScroll">
-                <ul class="goods-info" ref="goodsInfo">
-                    <li v-for="(item, i) in goodsList" :key="i">
-                        <div class="goods-info-title">{{ item.name }}</div>
-                        <div class="goods-info-item" v-for="(itemInfo, i) in item.foods" :key="i">
-                            <img :src="itemInfo.image" width="57px" height="57px">
-                            <div class="info-box">
-                                <h3 class="title">{{ itemInfo.name }}</h3>
-                                <p class="describe" v-if="itemInfo.description">
-                                    {{ itemInfo.description }}
-                                </p>
-                                <p class="sales">
-                                    <span class="sales-info">月售{{itemInfo.sellCount}}份</span><span
-                                        class="evaluate">好评率{{itemInfo.rating}}%</span>
-                                </p>
-                                <p class="price">
-                                    <span class="favoured-price">¥{{itemInfo.price}}</span>
-                                    <del class="old-price" v-if="itemInfo.oldPrice">
-                                        ¥{{itemInfo.oldPrice}}
-                                    </del>
-                                </p>
-                            </div>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-        </div>
+  <div class="goods-wrapper">
+    <div class="menu-wrapper" ref="menuWrapper">
+      <ul ref="goodsList">
+        <li class="menu-item" v-for="(item, i) in goodsList"
+            :key="i" :class="{'current': checkedIndex === i}"
+            @click="menuScrollclick(i)">
+          <span class="text"><span v-show="item.type>0" class="icon" :class="classMap[item.type]"></span>{{ item.name }}</span>
+        </li>
+      </ul>
     </div>
+    <div class="foods-wrapper" ref="foodsWrapper">
+      <ul ref="goodsInfo">
+        <li v-for="(item, lv1Index) in goodsList" :key="lv1Index" class="food-list">
+          <h2 class="title">{{ item.name }}</h2>
+          <ul>
+            <li class="food-item" v-for="(food, lv2Index) in item.foods" :key="lv2Index">
+              <div class="icon">
+                <img :src="food.icon" width="57" height="57">
+              </div>
+              <div class="content">
+                <h3 class="name">{{ food.name }}</h3>
+                <p class="describe">{{ food.description }}</p>
+                <div class="extra">
+                  <span class="count">月售{{food.sellCount}}份</span><span>好评率{{food.rating}}%</span>
+                </div>
+                <div class="price">
+                  <span class="now">¥{{food.price}}</span>
+                  <del class="old" v-if="food.oldPrice">¥{{food.oldPrice}}</del>
+                </div>
+                <div class="cartcontrol-wrapper">
+                  <cart-control :lv1="lv1Index" :lv2="lv2Index" :productNum="food.productNum"></cart-control>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
 </template>
 
 <script>
-import BScroll from 'better-scroll';
+  import BScroll from 'better-scroll'
+  import cartControl from '@/components/cartControl/cartControl.vue'
 
-export default {
-  name: 'goods',
-  data() {
-    return {
-      goodsList: [],
-      getTranslateYRegexp: /translate\(\d+px,\s-(\d+|\d+\.\d+)px\)/g,
-      scrollHeightList: [],
-      checkedIndex: 0,
-      scroll: null,
-      throttle: null
-    };
-  },
-  methods: {
-    initScrollData() {
-      const li = Array.from(this.$refs.goodsInfo.children)
-      this.scrollHeightList = li.map(item => item.offsetTop)
+  export default {
+    name: 'goods',
+    data() {
+      return {
+        classMap: ['decrease', 'discount', 'special', 'invoice', 'guarantee'],
+        scrollHeightList: [],
+        checkedIndex: 0,
+        foodsScroll: null,
+        menuScroll: null
+      }
     },
-    scrollme() {
-      const scrollStyle = this.$refs.goodsInfo.style.transform
-      const scrollHeight = this.getTranslateYRegexp.exec(scrollStyle)
-      if (scrollHeight) {
-        const index = this.scrollHeightList.findIndex(item => item > scrollHeight[1])
+    methods: {
+      _initScroll() {
+        this.menuScroll = new BScroll(this.$refs.menuWrapper, {
+          click: true
+        })
+        this.foodsScroll = new BScroll(this.$refs.foodsWrapper, {
+          probeType: 3,
+          click: true
+        })
+        const li = Array.from(this.$refs.goodsInfo.children)
+        this.scrollHeightList = li.map(item => item.offsetTop)
+        this.foodsScroll.on('scroll', () => {
+          this.scrolling()
+        })
+      },
+      scrolling() {
+        const index = this.scrollHeightList.findIndex(item => item > Math.abs(this.foodsScroll.y))
         this.checkedIndex = index !== -1 ? index - 1 : this.scrollHeightList.length - 1
+        const scrollY = this.calcRollDist(this.foodsScroll.y, this.foodsScroll.maxScrollY, this.menuScroll.maxScrollY)
+        this.menuScroll.scrollTo(0, -scrollY, 1000)
+      },
+      menuScrollclick(i) {
+        this.checkedIndex = i
+        this.foodsScroll.scrollToElement(this.$refs.goodsInfo.children[this.checkedIndex])
+      },
+      calcRollDist(cur, total, calcDist) {
+        return Math.abs(calcDist) * (Math.abs(cur) / Math.abs(total))
       }
-    }
-  },
-  async created() {
-    try {
-      const res = (await this.axios.get('/api/goods')).data;
-      if (res.errCode === 0) {
-        this.goodsList = res.data;
-        this.$nextTick(() => {
-          new BScroll(this.$refs.goodsListScroll, {});
-          this.scroll = new BScroll(this.$refs.goodsInfoScroll, {
-            probeType: 2
-          })
-          this.scroll.on('scroll', () => {
-            clearTimeout(this.throttle)
-            this.throttle = setTimeout(() => {
-              this.scrollme()
-            }, 200)
-          })
-          this.initScrollData()
-        });
-      } else {
-        alert('商品信息获取失败');
+    },
+    computed: {
+      goodsList() {
+        return this.$store.state.goodsList
       }
-    } catch (err) {
-      alert(err.message);
+    },
+    async created() {
+      try {
+        const res = (await this.axios.get('/api/goods')).data
+        if (res.errCode === 0) {
+          res.data.forEach((item) => {
+            item.foods.forEach((subItem) => {
+              subItem.productNum = 0
+            })
+          })
+          this.$store.commit('initGoodsList', res.data)
+          this.$nextTick(() => {
+            this._initScroll()
+          })
+        } else {
+          alert('商品信息获取失败')
+        }
+      } catch (err) {
+        alert(err.message)
+      }
+    },
+    components: {
+      cartControl
     }
-  },
-
-  mounted() {
   }
-};
 </script>
 
 <style lang="scss" scoped>
-    @import '../../common/scss/mixin.scss';
+  @import '../../common/scss/mixin.scss';
 
-    .goods-wrapper {
-        .goods-content {
-            display: flex;
-            .bScroll {
-                position: absolute;
-                top: 176px;
-                bottom: 48px;
-                overflow: hidden;
-                &.bScroll-right {
-                    margin-left: 80px;
-                }
-            }
-            .goods-list {
-                width: 80px;
-                .goods-list-title {
-                    width: 100%;
-                    height: 54px;
-                    text-align: center;
-                    font-size: 12px;
-                    color: rgb(20, 20, 20);
-                    font-weight: 200;
-                    line-height: 54px;
-                    background-color: #f3f5f7;
-                    @include border-1px(rgba(7, 17, 27, 0.1));
-                    &.active {
-                        background-color: #fff;
-                        color: rgb(240, 20, 20);
-                    }
-                }
-            }
-            .goods-info {
-                flex: 1;
-                .goods-info-title {
-                    box-sizing: border-box;
-                    position: relative;
-                    height: 26px;
-                    padding-left: 14px;
-                    font-size: 12px;
-                    line-height: 26px;
-                    color: rgb(147, 153, 159);
-                    background-color: #f3f5f7;
-                    &::after {
-                        content: '';
-                        position: absolute;
-                        top: 0;
-                        bottom: 0;
-                        width: 2px;
-                        left: 0;
-                        background-color: #d9dde1;
-                    }
-                }
-                .goods-info-item {
-                    display: flex;
-                    margin: 18px;
-                    .info-box {
-                        flex: 1;
-                        margin-left: 10px;
-                        padding-top: 2px;
-                        .title {
-                            margin-bottom: 8px;
-                            font-size: 14px;
-                            color: rgb(7, 17, 27);
-                            line-height: 14px;
-                            white-space: nowrap;
-                            text-overflow: ellipsis;
-                        }
-                        .describe {
-                            margin-bottom: 8px;
-                            font-size: 10px;
-                            line-height: 10px;
-                            color: rgb(147, 153, 159);
-                        }
-                        .sales {
-                            margin-bottom: 8px;
-                            font-size: 10px;
-                            line-height: 10px;
-                            color: rgb(147, 153, 159);
-                            white-space: nowrap;
-                            text-overflow: ellipsis;
-                            .sales-info {
-                                margin-right: 12px;
-                            }
-                        }
-                        .price {
-                            .favoured-price {
-                                font-size: 24px;
-                                line-height: 24px;
-                                font-weight: 700;
-                                color: #f40;
-                                margin-right: 8px;
-                            }
-                            .old-price {
-                                font-size: 10px;
-                                line-height: 24px;
-                                font-weight: 700;
-                                color: rgb(147, 153, 159);
-                            }
-                        }
-                    }
-
-                }
-            }
+  .goods-wrapper {
+    display: flex;
+    position: absolute;
+    top: 174px;
+    bottom: 46px;
+    width: 100%;
+    overflow: hidden;
+    .menu-wrapper {
+      flex: 0 0 80px;
+      width: 80px;
+      background-color: #f3f5f7;
+      .menu-item {
+        display: table;
+        height: 54px;
+        width: 56px;
+        padding: 0 12px;
+        line-height: 14px;
+        &.current {
+          background-color: #fff;
+          margin-top: -1px;
+          border: none;
         }
-
+        .icon {
+          display: inline-block;
+          vertical-align: top;
+          margin-right: 2px;
+          width: 12px;
+          height: 12px;
+          &.decrease {
+            @include bgImg("./images/decrease_3");
+          }
+          &.discount {
+            @include bgImg("./images/discount_3");
+          }
+          &.guarantee {
+            @include bgImg("./images/guarantee_3");
+          }
+          &.invoice {
+            @include bgImg("./images/invoice_3");
+          }
+          &.special {
+            @include bgImg("./images/special_3");
+          }
+        }
+        .text {
+          display: table-cell;
+          width: 56px;
+          vertical-align: middle;
+          font-size: 12px;
+          @include border-1px(rgba(7, 17, 27, 0.1));
+        }
+      }
     }
+    .foods-wrapper {
+      flex: 1;
+      .title {
+        padding-left: 14px;
+        height: 26px;
+        line-height: 26px;
+        border-left: 2px solid #d9dde1;
+        font-size: 12px;
+        color: rgb(147, 153, 159);
+        background-color: #f3f5f7;
+      }
+      .food-item {
+        display: flex;
+        margin: 18px;
+        padding-bottom: 18px;
+        @include border-1px(rgba(7, 17, 27, 0.1));
+        &:last-child {
+          margin-bottom: 0;
+          &::after {
+            border: none;
+          }
+        }
+        .icon {
+          flex: 0 0 57px;
+          width: 57px;
+          margin-right: 10px;
+        }
+        .content {
+          flex: 1;
+          .name {
+            font-size: 14px;
+            margin: 2px 0 8px 0;
+            height: 14px;
+            line-height: 14px;
+            color: rgb(7, 17, 27);
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+          }
+          .describe, .extra {
+            font-size: 10px;
+            line-height: 10px;
+            color: rgb(147, 153, 159);
+          }
+          .describe {
+            line-height: 12px;
+            margin-bottom: 8px;
+          }
+          .extra {
+            .count {
+              margin-right: 12px;
+            }
+          }
+          .price {
+            font-weight: 700;
+            line-height: 24px;
+            .now {
+              margin-right: 8px;
+              font-size: 14px;
+              color: rgb(240, 20, 20);
+            }
+            .old {
+              font-size: 10px;
+              color: rgb(147, 153, 159);
+            }
+          }
+          .cartcontrol-wrapper {
+            position: absolute;
+            right: 0;
+            bottom: 10px;
+          }
+        }
+      }
+    }
+  }
 </style>
