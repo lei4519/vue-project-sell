@@ -53,7 +53,8 @@
         classMap: ['decrease', 'discount', 'special', 'invoice', 'guarantee'],
         scrollHeightList: [],
         foodsScroll: null,
-        menuScroll: null
+        menuScroll: null,
+				scrollY: 0
       }
     },
     methods: {
@@ -80,7 +81,7 @@
         return this.$store.state.goodsList
       },
       checkedIndex() {
-        const index = this.scrollHeightList.findIndex(item => item > Math.abs(this.foodsScroll.y))
+        const index = this.scrollHeightList.findIndex(item => item > Math.abs(this.scrollY))
 				return index !== -1 ? index - 1 : this.scrollHeightList.length - 1
       }
     },
@@ -96,7 +97,8 @@
           this.$store.commit('initGoodsList', res.data)
           this.$nextTick(() => {
             this._initScroll()
-            this.foodsScroll.on('scroll', () => {
+            this.foodsScroll.on('scroll', (pos) => {
+							this.scrollY = pos.y
               this.menuScroll.scrollToElement(this.$refs.goodsList.children[this.checkedIndex], 300)
             })
           })
