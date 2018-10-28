@@ -4,7 +4,7 @@
       <ul ref="goodsList">
         <li class="menu-item" v-for="(item, i) in goodsList"
             :key="i" :class="{'current': checkedIndex === i}"
-            @click="menuScrollclick(i)">
+            @click="selectedMenu(i, $event)">
           <span class="text"><span v-show="item.type>0" class="icon" :class="classMap[item.type]"></span>{{ item.name }}</span>
         </li>
       </ul>
@@ -37,12 +37,14 @@
         </li>
       </ul>
     </div>
+    <shop-cart></shop-cart>
   </div>
 </template>
 
 <script>
   import BScroll from 'better-scroll'
   import cartControl from '@/components/cartControl/cartControl.vue'
+  import shopCart from '@/components/shopCart/shopCart.vue'
 
   export default {
     name: 'goods',
@@ -50,7 +52,6 @@
       return {
         classMap: ['decrease', 'discount', 'special', 'invoice', 'guarantee'],
         scrollHeightList: [],
-        checkedIndex: 0,
         foodsScroll: null,
         menuScroll: null
       }
@@ -66,27 +67,21 @@
         })
         const li = Array.from(this.$refs.goodsInfo.children)
         this.scrollHeightList = li.map(item => item.offsetTop)
-        this.foodsScroll.on('scroll', () => {
-          this.scrolling()
-        })
       },
-      scrolling() {
-        const index = this.scrollHeightList.findIndex(item => item > Math.abs(this.foodsScroll.y))
-        this.checkedIndex = index !== -1 ? index - 1 : this.scrollHeightList.length - 1
-        const scrollY = this.calcRollDist(this.foodsScroll.y, this.foodsScroll.maxScrollY, this.menuScroll.maxScrollY)
-        this.menuScroll.scrollTo(0, -scrollY, 1000)
-      },
-      menuScrollclick(i) {
-        this.checkedIndex = i
-        this.foodsScroll.scrollToElement(this.$refs.goodsInfo.children[this.checkedIndex])
-      },
-      calcRollDist(cur, total, calcDist) {
-        return Math.abs(calcDist) * (Math.abs(cur) / Math.abs(total))
+      selectedMenu(i, e) {
+        if (!e._constructed) {
+          return
+        }
+        this.foodsScroll.scrollToElement(this.$refs.goodsInfo.children[i])
       }
     },
     computed: {
       goodsList() {
         return this.$store.state.goodsList
+      },
+      checkedIndex() {
+        const index = this.scrollHeightList.findIndex(item => item > Math.abs(this.foodsScroll.y))
+        return index !== -1 ? index - 1 : this.scrollHeightList.length - 1
       }
     },
     async created() {
@@ -101,6 +96,9 @@
           this.$store.commit('initGoodsList', res.data)
           this.$nextTick(() => {
             this._initScroll()
+            this.foodsScroll.on('scroll', () => {
+              this.menuScroll.scrollToElement(this.$refs.goodsList.children[this.checkedIndex])
+            })
           })
         } else {
           alert('商品信息获取失败')
@@ -110,7 +108,8 @@
       }
     },
     components: {
-      cartControl
+      cartControl,
+      shopCart
     }
   }
 </script>
@@ -136,9 +135,14 @@
         padding: 0 12px;
         line-height: 14px;
         &.current {
+          position: relative;
+          z-index: 10;
           background-color: #fff;
           margin-top: -1px;
           border: none;
+          .text::after{
+            border: none;
+          }
         }
         .icon {
           display: inline-block;
