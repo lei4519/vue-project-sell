@@ -72,7 +72,7 @@
         if (!e._constructed) {
           return
         }
-        this.foodsScroll.scrollToElement(this.$refs.goodsInfo.children[i])
+        this.foodsScroll.scrollToElement(this.$refs.goodsInfo.children[i], 300)
       }
     },
     computed: {
@@ -81,7 +81,7 @@
       },
       checkedIndex() {
         const index = this.scrollHeightList.findIndex(item => item > Math.abs(this.foodsScroll.y))
-        return index !== -1 ? index - 1 : this.scrollHeightList.length - 1
+				return index !== -1 ? index - 1 : this.scrollHeightList.length - 1
       }
     },
     async created() {
@@ -97,7 +97,7 @@
           this.$nextTick(() => {
             this._initScroll()
             this.foodsScroll.on('scroll', () => {
-              this.menuScroll.scrollToElement(this.$refs.goodsList.children[this.checkedIndex])
+              this.menuScroll.scrollToElement(this.$refs.goodsList.children[this.checkedIndex], 300)
             })
           })
         } else {
@@ -140,6 +140,7 @@
           background-color: #fff;
           margin-top: -1px;
           border: none;
+					font-weight: 700;
           .text::after{
             border: none;
           }
