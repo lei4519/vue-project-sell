@@ -16,23 +16,24 @@ export default new Vuex.Store({
     }
   },
   getters: {
-    productTotal(state) {
-      let total = 0
-      state.goodsList.forEach((item) => {
-        total += item.foods.reduce((acc, cur) => acc + cur.productNum, 0)
-      })
-      return total
-    },
-    productList(state) {
-      const list = []
-      state.goodsList.forEach((item) => {
-        item.foods.forEach((food) => {
+    productInfo(state) {
+      const info = {
+        total: 0,
+        count: 0,
+        list: []
+      }
+      state.goodsList.forEach((item, lv1) => {
+        item.foods.forEach((food, lv2) => {
           if (food.productNum > 0) {
-            list.push(food)
+            food.lv1 = lv1
+            food.lv2 = lv2
+            info.list.push(food)
+            info.count += food.productNum
+            info.total += (food.productNum * food.price)
           }
         })
       })
-      return list
+      return info
     }
-  },
+  }
 })
