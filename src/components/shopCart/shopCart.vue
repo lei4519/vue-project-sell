@@ -20,7 +20,7 @@
                               @before-enter="beforeEnter"
                               @enter="enter"
                               @after-enter="afterEnter">
-                <div class="ball" v-for="(ball, i) in balls" :key="i" v-show="ball.show">
+                <div class="ball" v-for="(ball, i) in balls" :key="i" v-if="ball.show">
                     <div class="inner"></div>
                 </div>
             </transition-group>
@@ -80,29 +80,22 @@
                     if (ball.show) {
                         const rect = ball.el.getBoundingClientRect()
                         const x = rect.left - 32
-                        const y = -(rect.top - 22)
+                        const y = -(window.innerHeight - rect.top - 22)
                         el.style.transform = `translate3d(0, ${y}px, 0)`
                         el.children[0].style.transform = `translate3d(${x}px, 0, 0)`
                     }
                 }
             },
             enter(el, done) {
+                el.offsetHeight
                 this.$nextTick(() => {
-                    el.offsetHeight
                     el.style.transform = 'translate3d(0, 0, 0)'
                     el.children[0].style.transform = 'translate3d(0, 0, 0)'
-                    this.$nextTick(() => {
-                        done()
-                    })
                 })
             },
             afterEnter(el) {
-                if (this.dropBalls.length === 3) {
-                    for (let i = 0; i < this.balls.length; i++) {
-                        this.balls[i].show = false
-                        this.dropBalls = []
-                    }
-                }
+                const ball = this.dropBalls.shift()
+                ball.show = false
             }
         },
         computed: {
