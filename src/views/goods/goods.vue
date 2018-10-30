@@ -29,7 +29,7 @@
                   <del class="old" v-if="food.oldPrice">¥{{food.oldPrice}}</del>
                 </div>
                 <div class="cartcontrol-wrapper">
-                  <cart-control :lv1="lv1Index" :lv2="lv2Index" :productNum="food.productNum"></cart-control>
+                  <cart-control :lv1="lv1Index" :lv2="lv2Index" :productNum="food.productNum" @cartAdd="cartAdd"></cart-control>
                 </div>
               </div>
             </li>
@@ -75,6 +75,11 @@ export default {
 				return
 			}
 			this.foodsScroll.scrollToElement(this.$refs.goodsInfo.children[i], 300)
+		},
+		cartAdd(el) {
+			this.$nextTick(() => {
+				this.$refs.shopCart.drop(el)
+			})
 		}
 	},
 	computed: {

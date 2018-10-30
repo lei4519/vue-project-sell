@@ -4,7 +4,7 @@
       <div class="content-left" @click="isListShow=!isListShow">
         <div class="logo-wrapper">
           <div class="logo" :class="{'highlight': productInfo.count}">
-            <i class="icon-shopping_cart shopping_cart-hook"></i>
+            <i class="icon-shopping_cart"></i>
           </div>
           <div class="num" v-show="productInfo.count">{{ productInfo.count }}</div>
         </div>
@@ -15,6 +15,16 @@
         <div class="pay" :class="[ text === '去结算' ? 'enough' : 'not-enough']" v-text="text"></div>
       </div>
     </div>
+		<div class="ball-container">
+			<transition-group name="ball"
+			 	@before-enter="beforeEnter"
+				@enter="enter"
+				@after-enter="afterEnter">
+				<div class="ball" v-for="(ball, i) in balls" :key="i" v-show="ball.show">
+					<div class="inner" ></div>
+				</div>
+			</transition-group>
+		</div>
     <transition>
       <div class="shop-cart-list" v-show="isListShow" ref="shop-cart-list">
         <div class="list-header"><h1 class="title">购物车</h1> <span class="empty">清空</span></div>
@@ -40,8 +50,60 @@ import cartControl from '@/components/cartControl/cartControl.vue'
 export default {
 	data: () => ({
 		seller: [],
-		isListShow: false
+		isListShow: false,
+		balls: [
+			{ show: false, i: 0 },
+			{ show: false, i: 1 },
+			{ show: false, i: 2 },
+			{ show: false, i: 3 },
+			{ show: false, i: 4 }
+		],
+		dropBalls: []
 	}),
+	methods: {
+		drop(el) {
+			for (let i = 0; i < this.balls.length; i++) {
+				const ball = this.balls[i]
+				if (!ball.show) {
+					ball.show = true
+					ball.el = el
+					this.dropBalls.push(ball)
+					return
+				}
+			}
+		},
+		beforeEnter(el) {
+			let count = this.balls.length
+			while (count--) {
+				const ball = this.balls[count]
+				if (ball.show) {
+					const rect = ball.el.getBoundingClientRect()
+					const x = rect.left - 32
+					const y = -(rect.top - 22)
+					el.style.transform = `translate3d(0, ${y}px, 0)`
+					el.children[0].style.transform = `translate3d(${x}px, 0, 0)`
+				}
+			}
+		},
+		enter(el, done) {
+			el.offsetHeight
+			this.$nextTick(() => {
+				el.style.transform = 'translate3d(0, 0, 0)'
+				el.children[0].style.transform = 'translate3d(0, 0, 0)'
+			})
+		},
+		afterEnter(el) {
+			this.$nextTick(() => {
+				for (let i = 0; i < this.dropBalls.length; i++) {
+				const ball = this.dropBalls[i]
+				if (ball.show) {
+					ball.show = false
+					return
+				}
+			}
+			})
+		}
+	},
 	computed: {
 		productInfo() {
 			return this.$store.getters.productInfo
@@ -188,6 +250,22 @@ export default {
 					background-color: #00b43c;
 					color: #fff;
 				}
+			}
+		}
+	}
+	.ball-container {
+		.ball {
+			position: fixed;
+			left: 32px;
+			bottom: 22px;
+			z-index: 99;
+			transition: all 0.4s cubic-bezier(0.49, -0.29, 0.75, 0.41);
+			.inner {
+				width: 16px;
+				height: 16px;
+				border-radius: 50%;
+				background-color: rgb(0, 160, 220);
+				transition: all 0.4s linear;
 			}
 		}
 	}
