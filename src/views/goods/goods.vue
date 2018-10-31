@@ -15,11 +15,11 @@
                     <h2 class="title">{{ item.name }}</h2>
                     <ul>
                         <li class="food-item" v-for="(food, lv2Index) in item.foods" :key="lv2Index">
-                            <router-link tag="div" :to="`/goods/goodsInfo/${lv1Index}/${lv2Index}`" class="icon">
+                            <div class="icon">
                                 <img :src="food.icon" width="57" height="57">
-                            </router-link>
+                            </div>
                             <div class="content">
-                                <h3 class="name">{{ food.name }}</h3>
+                                <h3 class="name" @click="selectedFood=food;isFoodShow=true">{{ food.name }}</h3>
                                 <p class="describe">{{ food.description }}</p>
                                 <div class="extra">
                                     <span class="count">月售{{food.sellCount}}份</span><span>好评率{{food.rating}}%</span>
@@ -39,7 +39,9 @@
             </ul>
         </div>
         <shop-cart ref="shopCart"></shop-cart>
-        <router-view></router-view>
+        <transition>
+            <goods-info v-if="isFoodShow" @closeFoodInfo="closeFoodInfo" :food="selectedFood"></goods-info>
+        </transition>
     </div>
 </template>
 
@@ -47,6 +49,7 @@
   import BScroll from 'better-scroll'
   import cartControl from '@/components/cartControl/cartControl.vue'
   import shopCart from '@/components/shopCart/shopCart.vue'
+  import goodsInfo from '@/views/goods/goodsInfo.vue'
 
   export default {
     name: 'goods',
@@ -57,7 +60,8 @@
         foodsScroll: null,
         menuScroll: null,
         scrollY: 0,
-        cartAddEvent: null
+        isFoodShow: false,
+        selectedFood: null
       }
     },
     methods: {
@@ -82,6 +86,9 @@
         this.$nextTick(() => {
           this.$refs.shopCart.drop(el)
         })
+      },
+      closeFoodInfo() {
+        this.isFoodShow = false
       }
     },
     computed: {
@@ -89,9 +96,7 @@
         return this.$store.state.goodsList
       },
       checkedIndex() {
-        const index = this.scrollHeightList.findIndex(
-          item => item > Math.abs(this.scrollY)
-        )
+        const index = this.scrollHeightList.findIndex(item => item > Math.abs(this.scrollY))
         return index !== -1 ? index - 1 : this.scrollHeightList.length - 1
       }
     },
@@ -124,13 +129,24 @@
     },
     components: {
       cartControl,
-      shopCart
+      shopCart,
+      goodsInfo
     }
   }
 </script>
 
 <style lang="scss" scoped>
     @import '../../common/scss/mixin.scss';
+
+    .v-enter,
+    .v-leave-to {
+        transform: translateX(100%);
+    }
+
+    .v-enter-active,
+    .v-leave-active {
+        transition: all .5s;
+    }
 
     .goods-wrapper {
         display: flex;
