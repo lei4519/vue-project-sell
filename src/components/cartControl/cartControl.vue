@@ -17,11 +17,15 @@ export default {
 		alterProductNum(type, e) {
 			let count = 0
 			if (type === 'sub') {
+				if (this.productNum === 0) {
+					return
+				}
 				count = -1
 			} else {
 				count = 1
 				this.$emit('cartAdd', e.target)
 			}
+			console.log(e.target);
 			this.$store.commit('alterProductNum', {
 				lv1: this.lv1,
 				lv2: this.lv2,

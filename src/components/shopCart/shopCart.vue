@@ -1,7 +1,7 @@
 <template>
     <div class="shop-cart">
         <div class="content">
-            <div class="content-left" @click="isListShow=!isListShow">
+            <div class="content-left" @click="setListShow">
                 <div class="logo-wrapper">
                     <div class="logo" :class="{'highlight': productInfo.count}">
                         <i class="icon-shopping_cart"></i>
@@ -27,8 +27,8 @@
         </div>
         <transition>
             <div class="shop-cart-list" v-show="isListShow" ref="shop-cart-list">
-                <div class="list-header"><h1 class="title">购物车</h1> <span class="empty">清空</span></div>
-                <div class="list-content">
+                <div class="list-header"><h1 class="title">购物车</h1> <span class="empty" @click="$store.commit('clearProductList')">清空</span></div>
+                <div class="list-content" ref="listContent">
                     <ul>
                         <li class="food" v-for="(food, i) in productInfo.list" :key="i">
                             <span class="name">{{ food.name }}</span>
@@ -45,13 +45,14 @@
     </div>
 </template>
 
-<script lang="ts">
+<script>
     import cartControl from '@/components/cartControl/cartControl.vue'
+    import BScroll from 'better-scroll'
 
     export default {
         data: () => ({
             seller: [],
-            isListShow: false,
+            isListClick: false,
             balls: [
                 {show: false, i: 0},
                 {show: false, i: 1},
@@ -59,9 +60,15 @@
                 {show: false, i: 3},
                 {show: false, i: 4}
             ],
-            dropBalls: []
+            dropBalls: [],
+            scroll: null
         }),
         methods: {
+            setListShow() {
+                if (this.productInfo.count !== 0) {
+                    this.isListClick = !this.isListClick
+                }
+            },
             drop(el) {
                 for (let i = 0; i < this.balls.length; i++) {
                     const ball = this.balls[i]
@@ -87,20 +94,39 @@
                 }
             },
             enter(el, done) {
-                el.offsetHeight
                 this.$nextTick(() => {
-                    el.style.transform = 'translate3d(0, 0, 0)'
-                    el.children[0].style.transform = 'translate3d(0, 0, 0)'
+                    el.offsetHeight
+                    el.style.transform = 'none'
+                    el.children[0].style.transform = 'none'
+                    done()
                 })
             },
             afterEnter(el) {
-                const ball = this.dropBalls.shift()
-                ball.show = false
+                this.$nextTick(() => {
+                    const ball = this.dropBalls.shift()
+                    ball.show = false
+                })
             }
         },
         computed: {
             productInfo() {
-                return this.$store.getters.productInfo
+                const info = {
+                    total: 0,
+                    count: 0,
+                    list: []
+                }
+                this.$store.state.goodsList.forEach((item, lv1) => {
+                    item.foods.forEach((food, lv2) => {
+                    if (food.productNum > 0) {
+                        food.lv1 = lv1
+                        food.lv2 = lv2
+                        info.list.push(food)
+                        info.count += food.productNum
+                        info.total += (food.productNum * food.price)
+                    }
+                    })
+                })
+                return info
             },
             text() {
                 if (this.productInfo.total === 0) {
@@ -109,6 +135,20 @@
                     return `还差￥${this.seller.minPrice - this.productInfo.total}起送`
                 }
                 return '去结算'
+            },
+            isListShow() {
+                if (this.productInfo.count === 0) {
+                    this.isListClick = false
+                }
+                const show = this.productInfo.count !== 0 && this.isListClick === true
+                if (show) {
+                    this.$nextTick(() => {
+                        this.scroll = new BScroll(this.$refs.listContent, {
+                            click: true
+                        })
+                    })
+                }
+                return show
             }
         },
         components: {
@@ -131,11 +171,11 @@
     @import '../../common/scss/mixin.scss';
 
     .v-enter-active {
-        animation: move 0.5s linear;
+        animation: move 0.5s;
     }
 
     .v-leave-active {
-        animation: move 0.5s linear reverse;
+        animation: move 0.5s reverse;
     }
 
     @keyframes move {

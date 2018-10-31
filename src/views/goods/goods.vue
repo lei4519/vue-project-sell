@@ -15,9 +15,9 @@
           <h2 class="title">{{ item.name }}</h2>
           <ul>
             <li class="food-item" v-for="(food, lv2Index) in item.foods" :key="lv2Index">
-              <div class="icon">
+              <router-link tag="div" :to="`/goods/goodsInfo/${lv1Index}/${lv2Index}`" class="icon">
                 <img :src="food.icon" width="57" height="57">
-              </div>
+              </router-link>
               <div class="content">
                 <h3 class="name">{{ food.name }}</h3>
                 <p class="describe">{{ food.description }}</p>
@@ -38,6 +38,7 @@
       </ul>
     </div>
     <shop-cart ref="shopCart"></shop-cart>
+		<router-view></router-view>
   </div>
 </template>
 
