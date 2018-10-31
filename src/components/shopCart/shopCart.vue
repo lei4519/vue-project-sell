@@ -12,7 +12,7 @@
                 <div class="desc">另需配送费 ￥{{seller.deliveryPrice}}元</div>
             </div>
             <div class="content-right">
-                <div class="pay" :class="[ text === '去结算' ? 'enough' : 'not-enough']" v-text="text"></div>
+                <div class="pay" @click="pay" :class="[ text === '去结算' ? 'enough' : 'not-enough']" v-text="text"></div>
             </div>
         </div>
         <div class="ball-container">
@@ -25,9 +25,11 @@
                 </div>
             </transition-group>
         </div>
-        <transition>
+        <transition name="down2up">
             <div class="shop-cart-list" v-show="isListShow" ref="shop-cart-list">
-                <div class="list-header"><h1 class="title">购物车</h1> <span class="empty" @click="$store.commit('clearProductList')">清空</span></div>
+                <div class="list-header"><h1 class="title">购物车</h1> <span class="empty"
+                                                                          @click="$store.commit('clearProductList')">清空</span>
+                </div>
                 <div class="list-content" ref="listContent">
                     <ul>
                         <li class="food" v-for="(food, i) in productInfo.list" :key="i">
@@ -35,146 +37,180 @@
                             <div class="price"><span>￥{{ food.productNum * food.price }}</span></div>
                             <div class="cartcontrol-wrapper">
                                 <cart-control :productNum="food.productNum" :lv1="food.lv1"
-                                              :lv2="food.lv2"></cart-control>
+                                              :lv2="food.lv2" @cartAdd="cartAdd"></cart-control>
                             </div>
                         </li>
                     </ul>
                 </div>
             </div>
         </transition>
+        <transition name="fade">
+            <div class="list-mask" @click="setListShow" v-show="isListShow"></div>
+        </transition>
     </div>
 </template>
 
 <script>
-    import cartControl from '@/components/cartControl/cartControl.vue'
-    import BScroll from 'better-scroll'
+  import cartControl from '@/components/cartControl/cartControl.vue'
+  import BScroll from 'better-scroll'
 
-    export default {
-        data: () => ({
-            seller: [],
-            isListClick: false,
-            balls: [
-                {show: false, i: 0},
-                {show: false, i: 1},
-                {show: false, i: 2},
-                {show: false, i: 3},
-                {show: false, i: 4}
-            ],
-            dropBalls: [],
-            scroll: null
-        }),
-        methods: {
-            setListShow() {
-                if (this.productInfo.count !== 0) {
-                    this.isListClick = !this.isListClick
-                }
-            },
-            drop(el) {
-                for (let i = 0; i < this.balls.length; i++) {
-                    const ball = this.balls[i]
-                    if (!ball.show) {
-                        ball.show = true
-                        ball.el = el
-                        this.dropBalls.push(ball)
-                        return
-                    }
-                }
-            },
-            beforeEnter(el) {
-                let count = this.balls.length
-                while (count--) {
-                    const ball = this.balls[count]
-                    if (ball.show) {
-                        const rect = ball.el.getBoundingClientRect()
-                        const x = rect.left - 32
-                        const y = -(window.innerHeight - rect.top - 22)
-                        el.style.transform = `translate3d(0, ${y}px, 0)`
-                        el.children[0].style.transform = `translate3d(${x}px, 0, 0)`
-                    }
-                }
-            },
-            enter(el, done) {
-                this.$nextTick(() => {
-                    el.offsetHeight
-                    el.style.transform = 'none'
-                    el.children[0].style.transform = 'none'
-                    done()
-                })
-            },
-            afterEnter(el) {
-                this.$nextTick(() => {
-                    const ball = this.dropBalls.shift()
-                    ball.show = false
-                })
-            }
+  export default {
+    data: () => ({
+      seller: [],
+      isListClick: false,
+      balls: [
+        {
+          show: false
         },
-        computed: {
-            productInfo() {
-                const info = {
-                    total: 0,
-                    count: 0,
-                    list: []
-                }
-                this.$store.state.goodsList.forEach((item, lv1) => {
-                    item.foods.forEach((food, lv2) => {
-                    if (food.productNum > 0) {
-                        food.lv1 = lv1
-                        food.lv2 = lv2
-                        info.list.push(food)
-                        info.count += food.productNum
-                        info.total += (food.productNum * food.price)
-                    }
-                    })
-                })
-                return info
-            },
-            text() {
-                if (this.productInfo.total === 0) {
-                    return `￥${this.seller.minPrice}起送`
-                } else if (this.productInfo.total < this.seller.minPrice) {
-                    return `还差￥${this.seller.minPrice - this.productInfo.total}起送`
-                }
-                return '去结算'
-            },
-            isListShow() {
-                if (this.productInfo.count === 0) {
-                    this.isListClick = false
-                }
-                const show = this.productInfo.count !== 0 && this.isListClick === true
-                if (show) {
-                    this.$nextTick(() => {
-                        this.scroll = new BScroll(this.$refs.listContent, {
-                            click: true
-                        })
-                    })
-                }
-                return show
-            }
+        {
+          show: false
         },
-        components: {
-            cartControl
+        {
+          show: false
         },
-        async created() {
-            try {
-                const res = (await this.axios.get('/api/seller')).data
-                if (res.errCode === 0) {
-                    this.seller = res.data
-                }
-            } catch (err) {
-                alert(err.message)
-            }
+        {
+          show: false
+        },
+        {
+          show: false
         }
+      ],
+      dropBalls: [],
+      scroll: null
+    }),
+    methods: {
+      pay() {
+        if (this.productInfo.total < 20) {
+          return
+        }
+        window.alert(`支付${this.productInfo.total}元`)
+      },
+      setListShow() {
+        if (this.productInfo.count !== 0) {
+          this.isListClick = !this.isListClick
+        }
+      },
+      cartAdd(el) {
+        this.drop(el)
+      },
+      drop(el) {
+        for (let i = 0; i < this.balls.length; i++) {
+          const ball = this.balls[i]
+          if (!ball.show) {
+            ball.show = true
+            ball.el = el
+            this.dropBalls.push(ball)
+            return
+          }
+        }
+      },
+      beforeEnter(el) {
+        let count = this.balls.length
+        while (count--) {
+          const ball = this.balls[count]
+          if (ball.show) {
+            const rect = ball.el.getBoundingClientRect()
+            const x = rect.left - 32
+            const y = -(window.innerHeight - rect.top - 22)
+            el.style.transform = `translate3d(0, ${y}px, 0)`
+            el.children[0].style.transform = `translate3d(${x}px, 0, 0)`
+          }
+        }
+      },
+      enter(el, done) {
+        this.$nextTick(() => {
+          el.offsetHeight
+          el.style.transform = 'none'
+          el.children[0].style.transform = 'none'
+          done()
+        })
+      },
+      afterEnter(el) {
+        this.$nextTick(() => {
+          const ball = this.dropBalls.shift()
+          ball.show = false
+        })
+      }
+    },
+    computed: {
+      productInfo() {
+        const info = {
+          total: 0,
+          count: 0,
+          list: []
+        }
+        this.$store.state.goodsList.forEach((item, lv1) => {
+          item.foods.forEach((food, lv2) => {
+            if (food.productNum > 0) {
+              food.lv1 = lv1
+              food.lv2 = lv2
+              info.list.push(food)
+              info.count += food.productNum
+              info.total += (food.productNum * food.price)
+            }
+          })
+        })
+        return info
+      },
+      text() {
+        if (this.productInfo.total === 0) {
+          return `￥${this.seller.minPrice}起送`
+        } else if (this.productInfo.total < this.seller.minPrice) {
+          return `还差￥${this.seller.minPrice - this.productInfo.total}起送`
+        }
+        return '去结算'
+      },
+      isListShow() {
+        if (this.productInfo.count === 0) {
+          this.isListClick = false
+        }
+        const show = this.productInfo.count !== 0 && this.isListClick === true
+        if (!this.scroll) {
+          if (show) {
+            this.$nextTick(() => {
+              this.scroll = new BScroll(this.$refs.listContent, {
+                click: true
+              })
+            })
+          }
+        }
+        return show
+      }
+    },
+    components: {
+      cartControl
+    },
+    async created() {
+      try {
+        const res = (await this.axios.get('/api/seller')).data
+        if (res.errCode === 0) {
+          this.seller = res.data
+        }
+      } catch (err) {
+        alert(err.message)
+      }
     }
+  }
 </script>
 
 <style lang="scss" scoped>
     @import '../../common/scss/mixin.scss';
 
-    .v-enter-active {
+    .fade-enter,
+    .fade-leave-to {
+        opacity: 0;
+    }
+
+    .fade-enter-active,
+    .fade-leave-active {
+        transition: all 0.5s;
+    }
+
+    .down2up-enter-active {
         animation: move 0.5s;
     }
 
-    .v-leave-active {
+    .down2up-leave-active {
         animation: move 0.5s reverse;
     }
 
@@ -361,6 +397,16 @@
                     }
                 }
             }
+        }
+        .list-mask {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            z-index: -10;
+            background-color: rgba(7, 17, 27, 0.6);
+            backdrop-filter: blur(10px);
         }
     }
 </style>

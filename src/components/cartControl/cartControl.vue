@@ -25,7 +25,6 @@ export default {
 				count = 1
 				this.$emit('cartAdd', e.target)
 			}
-			console.log(e.target);
 			this.$store.commit('alterProductNum', {
 				lv1: this.lv1,
 				lv2: this.lv2,
