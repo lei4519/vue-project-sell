@@ -1,6 +1,7 @@
 <template>
     <div class="food-wrapper">
-        <div class="banner">
+		<div class="content">
+			<div class="banner">
             <img :src="food.image">
         </div>
         <div class="food-content">
@@ -12,9 +13,9 @@
                 <span class="now">￥{{food.price}}</span><del class="old" v-if="food.oldPrice">{{food.oldPrice}}</del>
             </div>
             <div class="cartcontrol-wrapper">
-                <cart-control :productNum="food.productNum" :lv1="food.lv1" :lv2="food.lv2"></cart-control>
+                <cart-control ref="cartCtrl" :productNum="food.productNum" :lv1="food.lv1" :lv2="food.lv2"></cart-control>
             </div>
-            <div class="add-food">加入购物车</div>
+            <div class="add-food" @click="$refs.cartCtrl.alterProductNum('add', $event)">加入购物车</div>
         </div>
         <div class="split"></div>
         <div class="info">
@@ -24,11 +25,14 @@
         <div class="back" @click="$emit('closeFoodInfo')">
             <i class="icon-arrow_lift"></i>
         </div>
+		</div>
     </div>
 </template>
 
 <script>
 import cartControl from '@/components/cartControl/cartControl.vue'
+import BScroll from 'better-scroll'
+
 export default {
 	props: {
 		food: {
@@ -36,8 +40,18 @@ export default {
 			required: true
 		}
 	},
+	data() {
+		return {
+			scroll: null
+		}
+	},
 	components: {
 		cartControl
+	},
+	mounted() {
+		this.scroll = new BScroll('.food-wrapper', {
+			click: true
+		})
 	}
 }
 </script>
@@ -139,9 +153,9 @@ export default {
 	}
 	.back {
 		position: absolute;
-		left: 10px;
-		top: 20px;
-		font-size: 24px;
+		top: 10px;
+		padding: 10px;
+		font-size: 20px;
 		color: #fff;
 	}
 }
