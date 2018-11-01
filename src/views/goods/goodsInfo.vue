@@ -11,6 +11,10 @@
             <div class="price">
                 <span class="now">￥{{food.price}}</span><del class="old" v-if="food.oldPrice">{{food.oldPrice}}</del>
             </div>
+            <div class="cartcontrol-wrapper">
+                <cart-control :productNum="food.productNum" :lv1="food.lv1" :lv2="food.lv2"></cart-control>
+            </div>
+            <div class="add-food">加入购物车</div>
         </div>
         <div class="split"></div>
         <div class="info">
@@ -24,97 +28,121 @@
 </template>
 
 <script>
-  export default {
-    props: {
-      food: {
-        type: Object,
-        required: true
-      }
-    }
-  }
+import cartControl from '@/components/cartControl/cartControl.vue'
+export default {
+	props: {
+		food: {
+			type: Object,
+			required: true
+		}
+	},
+	components: {
+		cartControl
+	}
+}
 </script>
 
 <style lang="scss" scoped>
-    .food-wrapper {
-        position: fixed;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background-color: #fff;
-        .banner {
-            position: relative;
-            width: 100%;
-            height: 0;
-            padding-top: 100%;
-            img {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-            }
-        }
-        .food-content {
-            padding: 18px;
-            .title {
-                margin-bottom: 8px;
-                font-size: 14px;
-                font-weight: 700;
-                line-height: 14px;
-                color: rgb(7, 17, 27);
-            }
-            .extra{
-                margin-bottom: 18px;
-                font-size: 10px;
-                line-height: 10px;
-                color: rgb(147, 153, 159);
-                .count{
-                    margin-right: 12px;
-                }
-            }
-            .price{
-                line-height: 24px;
-                .now{
-                    font-size: 14px;
-                    font-weight: 700;
-                    color: rgb(240, 20, 20);
-                    margin-right: 8px;
-                }
-                .old{
-                    font-size: 10px;
-                    color: rgb(147, 153, 159);
-                }
-            }
-        }
-        .info{
-            padding: 18px;
-            .title{
-                font-size: 14px;
-                line-height: 14px;
-                color: rgb(7, 17, 27);
-            }
-            .desc{
-                padding: 6px 8px;
-                font-size: 12px;
-                line-height: 24px;
-                font-weight: 200;
-                color: rgb(77, 85, 93);
-            }
-        }
-        .split{
-            height: 16px;
-            width: 100%;
-            border-top: 1px solid rgba(7, 17, 27, 0.1);
-            border-bottom: 1px solid rgba(7, 17, 27, 0.1);
-            background-color: #f3f5f7;
-        }
-        .back {
-            position: absolute;
-            left: 10px;
-            top: 20px;
-            font-size: 24px;
-            color: #fff;
-        }
-    }
+.food-wrapper {
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background-color: #fff;
+	.banner {
+		position: relative;
+		width: 100%;
+		height: 0;
+		padding-top: 100%;
+		img {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+		}
+	}
+	.food-content {
+		position: relative;
+		padding: 18px;
+		.title {
+			margin-bottom: 8px;
+			font-size: 14px;
+			font-weight: 700;
+			line-height: 14px;
+			color: rgb(7, 17, 27);
+		}
+		.extra {
+			margin-bottom: 18px;
+			font-size: 10px;
+			line-height: 10px;
+			color: rgb(147, 153, 159);
+			.count {
+				margin-right: 12px;
+			}
+		}
+		.price {
+			line-height: 24px;
+			.now {
+				font-size: 14px;
+				font-weight: 700;
+				color: rgb(240, 20, 20);
+				margin-right: 8px;
+			}
+			.old {
+				font-size: 10px;
+				color: rgb(147, 153, 159);
+			}
+		}
+		.cartcontrol-wrapper {
+			position: absolute;
+			right: 12px;
+			bottom: 12px;
+		}
+		.add-food {
+			position: absolute;
+			bottom: 18px;
+			right: 18px;
+			z-index: 10;
+			width: 74px;
+			height: 24px;
+			text-align: center;
+			color: #fff;
+			border-radius: 12px;
+			background-color: rgb(0, 160, 220);
+			line-height: 24px;
+			font-size: 10px;
+		}
+	}
+	.info {
+		padding: 18px;
+		.title {
+			font-size: 14px;
+			line-height: 14px;
+			color: rgb(7, 17, 27);
+		}
+		.desc {
+			padding: 6px 8px;
+			font-size: 12px;
+			line-height: 24px;
+			font-weight: 200;
+			color: rgb(77, 85, 93);
+		}
+	}
+	.split {
+		height: 16px;
+		width: 100%;
+		border-top: 1px solid rgba(7, 17, 27, 0.1);
+		border-bottom: 1px solid rgba(7, 17, 27, 0.1);
+		background-color: #f3f5f7;
+	}
+	.back {
+		position: absolute;
+		left: 10px;
+		top: 20px;
+		font-size: 24px;
+		color: #fff;
+	}
+}
 </style>

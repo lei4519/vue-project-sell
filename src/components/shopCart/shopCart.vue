@@ -139,11 +139,9 @@
           count: 0,
           list: []
         }
-        this.$store.state.goodsList.forEach((item, lv1) => {
-          item.foods.forEach((food, lv2) => {
+        this.$store.state.goodsList.forEach((item) => {
+          item.foods.forEach((food) => {
             if (food.productNum > 0) {
-              food.lv1 = lv1
-              food.lv2 = lv2
               info.list.push(food)
               info.count += food.productNum
               info.total += (food.productNum * food.price)

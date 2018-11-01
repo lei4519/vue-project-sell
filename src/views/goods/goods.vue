@@ -104,8 +104,10 @@
       try {
         const res = (await this.axios.get('/api/goods')).data
         if (res.errCode === 0) {
-          res.data.forEach(item => {
-            item.foods.forEach(subItem => {
+          res.data.forEach((item, lv1) => {
+            item.foods.forEach((subItem, lv2) => {
+                subItem.lv1 = lv1
+                subItem.lv2 = lv2
               subItem.productNum = 0
             })
           })
