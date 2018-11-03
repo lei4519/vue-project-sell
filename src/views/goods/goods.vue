@@ -40,7 +40,7 @@
         </div>
         <shop-cart ref="shopCart"></shop-cart>
         <transition>
-            <goods-info v-if="isFoodShow" @closeFoodInfo="closeFoodInfo" :food="selectedFood"></goods-info>
+            <goods-info v-if="isFoodShow" @closeFoodInfo="closeFoodInfo" @cartAdd="cartAdd" :food="selectedFood"></goods-info>
         </transition>
     </div>
 </template>
