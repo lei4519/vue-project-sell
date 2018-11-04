@@ -46,7 +46,7 @@
                             <h2 class="name">{{rating.username}}</h2>
                             <div class="star-wrapper">
                                 <Star class="star" :size="24" :score="rating.score"></Star>
-                                <span class="delivery">{{ rating.deliveryTime }}分钟送达</span>
+                                <span class="delivery" v-if="rating.deliveryTime">{{ rating.deliveryTime }}分钟送达</span>
                             </div>
                             <p class="text">{{rating.text}}</p>
                             <div class="recommend">
@@ -258,12 +258,13 @@
                             margin-bottom: 4px;
                         }
                         .star-wrapper{
-                            display: flex;
                             font-size: 0;
                             .star{
+                                display: inline-block;
                                 margin: 0 6px 6px 0;
                             }
                             .delivery{
+                                display: inline-block;
                                 font-size: 10px;
                                 line-height: 12px;
                                 color: rgb(147, 153, 159);

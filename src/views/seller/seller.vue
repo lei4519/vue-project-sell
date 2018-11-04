@@ -186,6 +186,11 @@
                             background-color: rgba(7, 17, 27, 0.1);
                             content: '';
                         }
+                        &:last-child{
+                            &::after{
+                                display: none;
+                            }
+                        }
                         h2 {
                             font-size: 10px;
                             line-height: 10px;
@@ -269,11 +274,11 @@
                 .pic-wrapper {
                     width: 100%;
                     overflow: hidden;
+                    white-space: nowrap;
                     .pic-list {
-                        display: flex;
-                        width: 100%;
-                        overflow: hidden;
+                        font-size: 0;
                         .pic-item {
+                            display: inline-block;
                             height: 90px;
                             width: 120px;
                             margin-right: 6px;
@@ -288,25 +293,25 @@
                     }
                 }
             }
-            .info{
+            .info {
                 padding: 18px;
-                .title{
+                .title {
                     font-size: 14px;
                     line-height: 14px;
                     color: rgb(7, 17, 27);
                     padding-bottom: 12px;
                     @include border-1px(rgba(7, 17, 27, 0.1));
                 }
-                .info-item{
+                .info-item {
                     padding: 16px 12px;
                     font-size: 12px;
                     line-height: 16px;
                     font-weight: 200;
                     color: rgb(7, 17, 27);
                     @include border-1px(rgba(7, 17, 27, 0.1));
-                    &:last-child{
+                    &:last-child {
                         padding-bottom: 0;
-                        &::after{
+                        &::after {
                             border: none;
                         }
                     }

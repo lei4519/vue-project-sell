@@ -66,13 +66,21 @@
     },
     methods: {
       _initScroll() {
-        this.menuScroll = new BScroll(this.$refs.menuWrapper, {
-          click: true
-        })
-        this.foodsScroll = new BScroll(this.$refs.foodsWrapper, {
-          probeType: 3,
-          click: true
-        })
+        if (!this.menuScroll) {
+          this.menuScroll = new BScroll(this.$refs.menuWrapper, {
+            click: true
+          })
+        } else {
+          this.menuScroll.refresh()
+        }
+        if (!this.foodsScroll) {
+          this.foodsScroll = new BScroll(this.$refs.foodsWrapper, {
+            probeType: 3,
+            click: true
+          })
+        } else {
+          this.menuScroll.refresh()
+        }
         const li = Array.from(this.$refs.goodsInfo.children)
         this.scrollHeightList = li.map(item => item.offsetTop)
       },
