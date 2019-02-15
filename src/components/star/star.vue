@@ -1,7 +1,7 @@
 <template>
-    <div :class="['star', starType]">
-        <span v-for="(itemClass, i) in itemClasses" :key="i" :class="['star-item', itemClass]"></span>
-    </div>
+  <div :class="['star', starType]">
+    <span v-for="(itemClass, i) in itemClasses" :key="i" :class="['star-item', itemClass]"></span>
+  </div>
 </template>
 
 <script>
