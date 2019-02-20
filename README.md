@@ -11,7 +11,7 @@ npm start
 ## 项目介绍
   - 使用vue+webpack+es6实现饿了么的在线外卖系统
 
-  ![home](C:\Users\Administrator\Desktop\vue-project-sell\home.png)
+  ![](./home.png)
 
     
 
